@@ -1,0 +1,34 @@
+sudo: required
+language: bash
+services:
+  - docker
+
+notifications:
+  webhooks: https://keenio-gateway.herokuapp.com/build
+
+env:
+  global:
+    - TRAVISCI_SCRIPT_DIR=/tmp/ci_scripts
+    - DOCKER_USERNAME=nolte
+    - secure: "aYgkZYK3bn2gqxwpLUy90iam2MyOhJpMR15yqeyOjef5F8qQ6s2rsLd9hceTIkZNe6/mFRSqYvlZWyo8BBjm7AaWQknuUHwtlM4Q5mjjRGn+tyziGyfM5ldTOzmA3yGbkdv3pe+smjrbj1wxJ6nHx5qt/C9GfRGnD+GhH3Sg/tsxv/h5HTvWd/5E1oTiCI/yv2WjMKD4jq3/t8TrVz+6ifJRuaJVqdRCxzPZSZCwJFQXzplaMEimH5EEONmMY+SGsOJqDtQa+zuWyp2Bzd6m4HOzMeNOclxoOa8IdEq/iIBhAFKJrykMZSwPhokFQsVM9Pmy7LtV5aDty1jrwZ4Gq/8S7yt4OBeIOZqG9kctz3INN+AEHzaF2EUuUOTlQ73ilTXKZp5znmKK+J3JDJuqkZfuYK63e1GJdMa1gcr2FY3S1oLEusjez+72n1bXoXH+Nt4k8ZGfTa/U1y1fYW/KTHi2T3RY2RE6to72mHfWZ451QMuBZP81TujgGPG4hUzcVc4SNf7F/mCVn7eV+PwIHilOn3Y3BFzfMLsiuepguZ3EdNyfs/EuyDLb7bHnuIFGZmn7+D+Wdl2Y97ZXpl6sCs7sZl1f9koIsjJeN1ZZClSTSSkIC7wk/k3SRKcpYN2Dd142F06e4+96pOpOcBqr8SriMEt5JDQrP4SN0zD9FxY="
+
+
+before_install:
+  - mkdir -p $TRAVISCI_SCRIPT_DIR
+  - wget https://gist.githubusercontent.com/nolte/33a1a963d8161db0641b59f26d794e01/raw/dockerhub_deploy.sh -O $TRAVISCI_SCRIPT_DIR/dockerhub_deploy.sh
+  - chmod u+x $TRAVISCI_SCRIPT_DIR/*
+
+jobs:
+  include:
+    - stage: build
+      script:
+        - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+        - docker build -t nolte/rpi-mongo -f DockerfileRPI .
+      deploy:
+        # only executed on master branch
+        - provider: script
+          script: $TRAVISCI_SCRIPT_DIR/dockerhub_deploy.sh $DOCKER_USERNAME $DOCKER_PASSWORD nolte/rpi-mongo rpi-mongo development
+          on:
+            branch: development
+        - provider: script
+          script: $TRAVISCI_SCRIPT_DIR/dockerhub_deploy.sh $DOCKER_USERNAME $DOCKER_PASSWORD nolte/rpi-mongo rpi-mongo latest
