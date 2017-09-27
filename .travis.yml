@@ -31,3 +31,8 @@ jobs:
             branch: development
         - provider: script
           script: $TRAVISCI_SCRIPT_DIR/dockerhub_deploy.sh $DOCKER_USERNAME $DOCKER_PASSWORD nolte/rpi-mongo rpi-mongo latest
+        - provider: script
+          script: $TRAVISCI_SCRIPT_DIR/dockerhub_deploy.sh $DOCKER_USERNAME $DOCKER_PASSWORD nolte/rpi-mongo rpi-mongo $TRAVIS_TAG
+          on:
+            tags: true
+            all_branches: false

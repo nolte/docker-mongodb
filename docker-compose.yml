@@ -1,0 +1,19 @@
+version: '3'
+services:
+
+  playliststore:
+    build:
+      context: .
+      dockerfile: DockerfileRPI
+    expose:
+      - 27017
+    ports:
+      - "27017:27017"
+    volumes:
+      - playlistdata:/data/db
+    command: "mongod --smallfiles"
+
+
+volumes:
+  soundshare:
+  playlistdata:
