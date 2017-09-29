@@ -1,6 +1,8 @@
 FROM resin/raspberrypi-buildpack-deps:jessie
 
-RUN apt-get update && apt-get install -y mongodb-server
+ARG MONGODB_VERSION=1:2.4.10-5+deb8u1
+
+RUN apt-get update && apt-get install -y mongodb-server=$MONGODB_VERSION
 RUN mkdir /usr/src/data
 
 EXPOSE 27017 27018
